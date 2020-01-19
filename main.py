@@ -1,3 +1,6 @@
+from display import print_display
+
+
 def insert_coin(state, current_coin, new_coin):
     new_coin = int(new_coin)
     valid_coin = [10, 50, 100, 500]
@@ -34,6 +37,7 @@ def vending_machine():
     current_coin = 0
     state = True
     while state is True:
+        print_display()
         user_input = input("Please Choose 1-5: ").split(' ')
 
         if user_input[0] == '1':
