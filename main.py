@@ -54,3 +54,7 @@ def vending_machine():
         print('Your change is {}'.format(current_coin))
 
     print(items)
+
+
+print('START')
+vending_machine()
