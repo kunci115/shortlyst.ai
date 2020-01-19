@@ -13,21 +13,41 @@ def insert_coin(state, current_coin, new_coin):
     return True, current_coin
 
 
-def purchase(state, current_coin, items, item_id):
+def choose_item(state, current_coin, items, item_id, current_purchase):
     if items[item_id][2] < 1:
         print('Stock empty')
-        return True, current_coin, items
+        return True, items, current_purchase
 
-    if current_coin < items[item_id][1]:
-        print('Coin {} - Item {}'.format(current_coin, items[item_id][1]))
+    current_total = 0
+    for c in current_purchase:
+        current_total = current_total + items[c][1]
+
+    need = (items[item_id][1] + current_total)
+
+    if current_coin < need:
+        print('Coin {} - Need {}'.format(current_coin, need))
         print('Please Insert more coin')
-        return True, current_coin, items
+        return True, items, current_purchase
     else:
-        print('Delivering {}'.format(items[item_id][0]))
-        current_coin = current_coin - items[item_id][1]
+        print('Add {}'.format(items[item_id][0]))
+        current_purchase.append(item_id)
         items[item_id][2] = items[item_id][2] - 1
-        state = False
-        return state, current_coin, items
+        return True, items, current_purchase
+
+
+def get_item(state, items, current_coin, current_purchase):
+    current_total = 0
+    for c in current_purchase:
+        current_total = current_total + items[c][1]
+
+    return True, (current_coin - current_total), []
+
+
+def return_coin(items, current_purchase):
+    for c in current_purchase:
+        items[c][2] = items[c][2] + 1
+
+    return False, items, 0
 
 
 def vending_machine():
@@ -35,8 +55,9 @@ def vending_machine():
     items = {1: ['Canned coffee', 120, 5], 2: ['Water PET bottle', 100, 0], 3: ['Sport drinks', 150, 1]}
 
     current_coin = 0
+    current_purchase = []
     state = True
-    while state is True:
+    while state:
         print_display()
         user_input = input("Please Choose 1-5: ").split(' ')
 
@@ -45,15 +66,20 @@ def vending_machine():
             state, current_coin = insert_coin(state, current_coin, new_coin)
         elif user_input[0] == '2':
             item_id = int(user_input[1])
-            state, current_coin, items = purchase(state, current_coin, items, item_id)
+            state, items, current_purchase = choose_item(state, current_coin, items, item_id, current_purchase)
+        elif user_input[0] == '3':
+            print('Get items')
+            state, current_coin, current_purchase = get_item(state, items, current_coin, current_purchase)
         elif user_input[0] == '4':
             print('Return coins')
+            state, items, current_coin = return_coin(items, current_purchase)
+        elif user_input[0] == '5':
+            print('Get returned coins')
+            if current_coin > 0:
+                print('Your change is {}'.format(current_coin))
             state = False
 
-    if current_coin > 0:
-        print('Your change is {}'.format(current_coin))
-
-    print(items)
+    print('Stock is {}'.format(items))
 
 
 print('START')
